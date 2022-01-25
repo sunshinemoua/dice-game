@@ -13,15 +13,33 @@ const btnNew = document.querySelector('.btn--new');
 const btnRoll = document.querySelector('.btn--roll');
 const btnHold = document.querySelector('.btn--hold');
 
-score0Element.textContent = 0;
-score1Element.textContent = 0;
+// declaring variables so it is accesible in the functions
+let scores, currentScore, activePlayer, playing;
 
 //hide the dice img
-diceElement.classList.add('hidden');
+const hideDice = function () {
+  diceElement.classList.add('hidden');
+};
 
-const scores = [0, 0];
-let currentScore = 0;
-let activePlayer = 0;
+// starting conditions
+const init = function () {
+  // assigning variables
+  scores = [0, 0];
+  currentScore = 0;
+  activePlayer = 0;
+  playing = true;
+
+  score0Element.textContent = 0;
+  score1Element.textContent = 0;
+  current0Element.textContent = 0;
+  current1Element.textContent = 0;
+
+  hideDice();
+  player0Element.classList.remove('player--winner');
+  player1Element.classList.remove('player--winner');
+  player0Element.classList.add('player--active');
+  player1Element.classList.remove('player--active');
+};
 
 const switchPlayer = function () {
   document.getElementById(`current--${activePlayer}`).textContent = 0;
@@ -31,24 +49,28 @@ const switchPlayer = function () {
   player1Element.classList.toggle('player--active');
 };
 
+init();
+
 // rolling dice functionality
 btnRoll.addEventListener('click', function () {
-  // 1. Generate random dice roll
-  const dice = Math.trunc(Math.random() * 6) + 1;
-  console.log(dice);
-  //2. Display dice
-  diceElement.classList.remove('hidden');
-  // dynamically loads dice imgs
-  diceElement.src = `dice-${dice}.png`;
-  //3. Check for rolled 1: if true, switch to next player
-  if (dice !== 1) {
-    // add dice to the parent score
-    currentScore += dice;
-    document.getElementById(`current--${activePlayer}`).textContent =
-      currentScore;
-  } else {
-    // switch to next player ... if activePlayer is 0 then switch to 1
-    switchPlayer();
+  if (playing) {
+    // 1. Generate random dice roll
+    const dice = Math.trunc(Math.random() * 6) + 1;
+    console.log(dice);
+    //2. Display dice
+    diceElement.classList.remove('hidden');
+    // dynamically loads dice imgs
+    diceElement.src = `dice-${dice}.png`;
+    //3. Check for rolled 1: if true, switch to next player
+    if (dice !== 1) {
+      // add dice to the parent score
+      currentScore += dice;
+      document.getElementById(`current--${activePlayer}`).textContent =
+        currentScore;
+    } else {
+      // switch to next player ... if activePlayer is 0 then switch to 1
+      switchPlayer();
+    }
   }
 });
 
@@ -58,9 +80,20 @@ btnHold.addEventListener('click', function () {
   document.getElementById(`score--${activePlayer}`).textContent =
     scores[activePlayer];
 
+  btnNew.addEventListener('click', init);
+
   //2. check if score is >= 100
-  //   if (scores >= 100)
-  //     document
-  //3. switch to next player
-  switchPlayer();
+  if (scores[activePlayer] >= 100) {
+    playing = false;
+    document
+      .querySelector(`.player--${activePlayer}`)
+      .classList.add('player--winner');
+    document
+      .querySelector(`.player--${activePlayer}`)
+      .classList.remove('player--active');
+    hideDice();
+  } else {
+    //3. switch to next player
+    switchPlayer();
+  }
 });
